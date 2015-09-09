@@ -25,8 +25,8 @@
 #
 #
 CXX=g++
-CFLAGS=-I /opt/AMDAPPSDK-3.0-0-Beta/include -g 
-LDFLAGS=-L /opt/AMDAPPSDK-3.0-0-Beta/lib/x86_64/sdk/ -g
+CFLAGS=-I /home/tclin/AMDAPPSDK-2.9-1/include/ -g 
+LDFLAGS=-L /home/tclin/AMDAPPSDK-2.9-1/lib/x86_64/ -g
 
 EXENAME = tConvolve
 OBJS = tConvolve.o Stopwatch.o Benchmark.o

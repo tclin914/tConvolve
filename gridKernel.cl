@@ -30,13 +30,15 @@ __kernel void grid(__global const int* iu, __global const int* iv, const int gSi
     // grid_imag[(gind + (suppv * gSize)) + suppu] = grid_imag[(gind + (suppv * gSize)) + suppu] +
     //    d_imag * cptr_imag;
 
-    int gind = iu[dind] + gSize * iv[dind] -support;
+    int gind = iu[dind] + (gSize * iv[dind]) - support;
     int cind = cOffset[dind];
 
     for (int suppv = 0; suppv < sSize; suppv++) {
         for (int suppu = 0; suppu < sSize; suppu++) {
-            grid_real[gind + suppu] = grid_real[gind + suppu] + data_real[dind] + C_real[cind + suppu];
-            grid_imag[gind + suppu] = grid_imag[gind + suppu] + data_imag[dind] + C_imag[cind + suppu];
+            grid_real[gind + (suppv * gSize) + suppu] = grid_real[gind + (suppv * gSize) + suppu] + 
+                data_real[dind] * C_real[cind + (suppv * sSize) + suppu];
+            grid_imag[gind + (suppv * gSize) + suppu] = grid_imag[gind + (suppv * gSize) + suppu] + 
+                data_imag[dind] * C_imag[cind + (suppv * sSize) + suppu];
         }
     }
 
