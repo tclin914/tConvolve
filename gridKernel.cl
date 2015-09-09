@@ -35,11 +35,13 @@ __kernel void grid(__global const int* iu, __global const int* iv, const int gSi
 
     for (int suppv = 0; suppv < sSize; suppv++) {
         for (int suppu = 0; suppu < sSize; suppu++) {
-            grid_real[gind + (suppv * gSize) + suppu] = grid_real[gind + (suppv * gSize) + suppu] + 
-                data_real[dind] * C_real[cind + (suppv * sSize) + suppu];
-            grid_imag[gind + (suppv * gSize) + suppu] = grid_imag[gind + (suppv * gSize) + suppu] + 
-                data_imag[dind] * C_imag[cind + (suppv * sSize) + suppu];
+            grid_real[gind + suppu] = grid_real[gind + suppu] + 
+                (data_real[dind] * C_real[cind + suppu] - data_imag[dind] * C_imag[cind + suppu]);
+            grid_imag[gind + suppu] = grid_imag[gind + suppu] + 
+                (data_real[dind] * C_imag[cind + suppu] + data_imag[dind] * C_real[cind + suppu]);
         }
+        gind = gind + gSize;
+        cind = cind + sSize;
     }
 
 
