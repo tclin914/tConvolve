@@ -272,32 +272,32 @@ void Benchmark::gridKernel(const int support,
         exit(1);
     }
     
-    std::cout << "original: " << samples.size() << "  " << sSize << "\n";
-    for (int dind = 0; dind < int(samples.size()); ++dind) {
-        // The actual grid point from which we offset
-        int gind = samples[dind].iu + gSize * samples[dind].iv - support;
+    // std::cout << "original: " << samples.size() << "  " << sSize << "\n";
+    // for (int dind = 0; dind < int(samples.size()); ++dind) {
+        // // The actual grid point from which we offset
+        // int gind = samples[dind].iu + gSize * samples[dind].iv - support;
 
-        // The Convoluton function point from which we offset
-        int cind = samples[dind].cOffset;
+        // // The Convoluton function point from which we offset
+        // int cind = samples[dind].cOffset;
 
-        for (int suppv = 0; suppv < sSize; suppv++) {
-            Value* gptr = &grid[gind];
-            const Value* cptr = &C[cind];
-            const Value d = samples[dind].data;
-            for (int suppu = 0; suppu < sSize; suppu++) {
-                *(gptr++) += d * (*(cptr++));
-                //std::cout << "Iteration: " << dind << "  " << suppv << "  " << suppu << "\n";
-            }
+        // for (int suppv = 0; suppv < sSize; suppv++) {
+            // Value* gptr = &grid[gind];
+            // const Value* cptr = &C[cind];
+            // const Value d = samples[dind].data;
+            // for (int suppu = 0; suppu < sSize; suppu++) {
+                // *(gptr++) += d * (*(cptr++));
+                // //std::cout << "Iteration: " << dind << "  " << suppv << "  " << suppu << "\n";
+            // }
 
-            gind += gSize;
-            cind += sSize;
-        }
-    }
+            // gind += gSize;
+            // cind += sSize;
+        // }
+    // }
 
-    for (int i = 0; i < gSize * gSize; i++) {
-        printf("grid.real %d\n", grid[i].real());
-        printf("grid.imag %d\n", grid[i].imag());
-    } 
+    // for (int i = 0; i < gSize * gSize; i++) {
+        // printf("grid.real %d\n", grid[i].real());
+        // printf("grid.imag %d\n", grid[i].imag());
+    // } 
 
     // deal with samples data
     std::vector<int> iu(int(samples.size())), iv(int(samples.size())), cOffset(int(samples.size()));
@@ -406,7 +406,6 @@ void Benchmark::gridKernel(const int support,
         clReleaseContext(context);
         exit(1);
     }
-    
 
     clSetKernelArg(gridKernel, 0, sizeof(cl_mem), &cl_iu);
     clSetKernelArg(gridKernel, 1, sizeof(cl_mem), &cl_iv);
@@ -421,16 +420,21 @@ void Benchmark::gridKernel(const int support,
     clSetKernelArg(gridKernel, 10, sizeof(cl_mem), &cl_data_real);
     clSetKernelArg(gridKernel, 11, sizeof(cl_mem), &cl_data_imag);
 
-    size_t global_work_size[] = { sSize, sSize, samples.size()};
+    // size_t global_work_size[] = { sSize, sSize, samples.size()};
     std::cout << "sSize: " << sSize << "  " << "gSize: " << gSize;
-    err = clEnqueueNDRangeKernel(queue, gridKernel, 3, 0, global_work_size, 0, 0, 0, 0);
+    size_t datasize = samples.size();
+    err = clEnqueueNDRangeKernel(queue, gridKernel, 1, 0, &datasize, 0, 0, 0, 0);
     std::vector<double> res_grid_real(gSize * gSize), res_grid_imag(gSize * gSize);
     if (err == CL_SUCCESS) { 
         std::cout << "SUCCESS"; 
         err = clEnqueueReadBuffer(queue, cl_grid_real, CL_TRUE, 0, sizeof(double) * gSize * gSize, &res_grid_real[0], 0, 0, 0);
+        err = clEnqueueReadBuffer(queue, cl_grid_imag, CL_TRUE, 0, sizeof(double) * gSize * gSize, &res_grid_imag[0], 0, 0, 0);
     }
 
-    
+    for (int i = 0; i < gSize * gSize; i++){
+      grid[i] = Value(res_grid_real[i], res_grid_imag[i]);
+    }
+
     clReleaseMemObject(cl_iu);
     clReleaseMemObject(cl_iv);
     clReleaseMemObject(cl_cOffset);
