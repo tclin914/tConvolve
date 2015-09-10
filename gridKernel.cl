@@ -48,6 +48,6 @@ __kernel void grid(__global const int* iu, __global const int* iv, const int gSi
     // printf("gSize %d\n", gSize);
     // printf("sSize %d\n", sSize);
     // printf("support %d\n", support);
-
+    // printf("dind %d\n", dind);
     // printf("GPU %d,%d,%d\n", suppu, suppv, dind);
 }
